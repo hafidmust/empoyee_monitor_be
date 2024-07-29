@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  password      String
+  role          Role
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  reports       Report[]
+  reportsValidated ReportValidation[]
+  tasksAssigned Task[] @relation("TasksAssigned")
+  tasksReceived Task[] @relation("TasksReceived")
+}
+
+model Report {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  title       String
+  content     String
+  reportDate  DateTime
+  photoUrl    String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  validations ReportValidation[]
+}
+
+model ReportValidation {
+  id              Int       @id @default(autoincrement())
+  report          Report    @relation(fields: [reportId], references: [id])
+  reportId        Int
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  validationDate  DateTime  @default(now())
+  comments        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Task {
+  id            Int       @id @default(autoincrement())
+  assignedBy    User      @relation("TasksAssigned", fields: [assignedById], references: [id])
+  assignedById  Int
+  assignedTo    User      @relation("TasksReceived", fields: [assignedToId], references: [id])
+  assignedToId  Int
+  description   String
+  dueDate       DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  STAFF
+  ADMINISTRATOR
+  SUPERVISOR
+}
+
+enum ReportStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
