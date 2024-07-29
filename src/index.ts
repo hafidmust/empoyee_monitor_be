@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import express from 'express';
-import { signin } from "./handlers/user";
+import { getStaff, signin, signup } from "./handlers/user";
 import { upload } from "./handlers/upload";
 import { protect } from "./modules/auth";
 import router from "./router";
@@ -18,7 +18,8 @@ async function main() {
 app.use('/api/v1', protect, router);
 
 app.post('/signin',signin);
-
+app.post('/signup', signup);
+app.get('/getStaff', getStaff);
 app.use((err, req, res, next) => {
     console.log(err)
     res.json({message: `had an error: ${err.message}`})
