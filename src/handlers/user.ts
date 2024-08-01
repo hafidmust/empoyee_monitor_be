@@ -13,11 +13,16 @@ export const signin = async (req, res) =>{
             }
         });
         if(!user) {
-            res.status(401).json({message: 'Invalid username or password'});
+            res.status(401).json({message: 'Invalid username or password',responseData: null});
             return;
         }
         const token = createJWT(user);
-        res.json(token);
+        res.json({
+            message: 'success',
+            responseData: {
+                token: token
+            }
+        });
     }catch(e) {
         res.status(500).json({error: 'Something went wrong '+e});
     }

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { upload } from "./handlers/upload";
-import { createReport, getAllReports } from "./handlers/report";
+import { createReport, getAllReports, getReportById } from "./handlers/report";
 import { getProfile } from "./handlers/user";
-import { createTask } from "./handlers/task";
+import { createTask, getTasksAssigned } from "./handlers/task";
 
 const router = Router();
 /**
@@ -10,11 +10,15 @@ const router = Router();
  */
 router.post("/report",upload.single('photo'), createReport);
 router.get("/report",getAllReports);
+router.get("/report/all", getAllReports);
+router.get("/report/:id", getReportById)
 
 /**
  * Task / Tugas
  */
 router.post("/task", createTask)
+router.get("/tasks",getTasksAssigned);
+
 
 
 /**

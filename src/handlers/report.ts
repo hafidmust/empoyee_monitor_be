@@ -23,12 +23,9 @@ export const createReport = async (req, res) => {
     }
 }
 export const getAllReports = async (req, res) => {
-    const user = req.user;
     try {
         const reports = await prisma.report.findMany({
-            where: {
-                userId: user.id
-            },
+            
             select: {
                 id: true,
                 title: true,
@@ -42,9 +39,34 @@ export const getAllReports = async (req, res) => {
                 }
             }
         });
-        res.json(reports);
+        res.json({
+            message: 'success',
+            responseData: reports
+        });
     }catch(e){
         res.status(500).json({error: 'Something went wrong '+e});
     }
 }
-export const getReportById = async (req, res) => {}
+export const getReportById = async (req, res) => {
+    const {id} = req.params;
+    try{
+        const report = await prisma.report.findUnique({
+            where: {
+                id: parseInt(id)
+            },
+            include: {
+                user: {
+                    select: {
+                        username: true
+                    }
+                }
+            }
+        });
+        res.json({
+            message: 'success',
+            responseData: report
+        });
+    }catch(e){
+        res.status(500).json({error: 'Something went wrong '+e});
+    }
+}
