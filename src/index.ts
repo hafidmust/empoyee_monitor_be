@@ -4,9 +4,10 @@ import { getStaff, signin, signup } from "./handlers/user";
 import { upload } from "./handlers/upload";
 import { protect } from "./modules/auth";
 import router from "./router";
+require('dotenv').config();
 const prisma = new PrismaClient();
 const app = express();
-const port = 5000;
+const port = process.env.EXPRESS_PORT || 8080;
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
