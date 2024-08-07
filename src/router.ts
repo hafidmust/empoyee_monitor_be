@@ -2,7 +2,7 @@ import { Router } from "express";
 import { upload } from "./handlers/upload";
 import { createReport, getAllReports, getReportById } from "./handlers/report";
 import { getProfile } from "./handlers/user";
-import { createTask, getTasksAssigned } from "./handlers/task";
+import { createTask, getTasks, getTasksAssigned } from "./handlers/task";
 
 const router = Router();
 /**
@@ -17,7 +17,8 @@ router.get("/report/:id", getReportById)
  * Task / Tugas
  */
 router.post("/task", createTask)
-router.get("/tasks",getTasksAssigned);
+router.get("/task/all", getTasks)
+router.get("/task/assigned",getTasksAssigned);
 
 
 

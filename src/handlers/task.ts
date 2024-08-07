@@ -21,7 +21,23 @@ export const createTask = async (req, res) => {
  */
 export const getTasks = async (req, res) => {
     try{
-        const tasks = await prisma.task.findMany();
+        const tasks = await prisma.task.findMany({
+            select: {
+                id: true,
+                description: true,
+                dueDate: true,
+                assignedBy: {
+                    select: {
+                        username: true
+                    }
+                },
+                assignedTo: {
+                    select: {
+                        username: true
+                    }
+                }
+            }
+        });
         res.status(200).json({  
             message: 'success',
             responseData: tasks
@@ -39,6 +55,21 @@ export const getTasksAssigned = async (req, res) => {
         const tasks = await prisma.task.findMany({
             where: {
                 assignedToId: req.user.id
+            },
+            select: {
+                id: true,
+                description: true,
+                dueDate: true,
+                assignedBy: {
+                    select: {
+                        username: true
+                    }
+                },
+                assignedTo: {
+                    select: {
+                        username: true
+                    }
+                }
             }
         });
         res.status(200).json({  

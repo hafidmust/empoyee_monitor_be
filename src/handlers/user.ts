@@ -2,6 +2,45 @@ import exp from "constants";
 import prisma from "../db"
 import { createJWT } from "../modules/auth";
 
+/**
+ * @swagger
+ * components:
+ *  securitySchemes:
+ *     bearerAuth:
+ *      type: http
+ *      scheme: bearer
+ *      bearerFormat: JWT
+ * tags:
+ *  -name: Authentication
+ * /signin:
+ *   post:
+ *     summary: Sign in to the system
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ */
+
 export const signin = async (req, res) =>{
     const { username, password } = req.body;
 
@@ -28,6 +67,43 @@ export const signin = async (req, res) =>{
     }
 }
 
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Sign up to the system
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                 username:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *       500:
+ *         description: Internal Server Error
+ */
+
 export const signup = async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -43,6 +119,32 @@ export const signup = async (req, res) => {
         res.status(500).json({error: 'Something went wrong '+e});
     }
 }
+
+/**
+ * @swagger
+ * /api/v1/user:
+ *   get:
+ *     summary: Get user profile
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *       500:
+ *         description: Internal Server Error
+ */
 
 export const getProfile = async (req, res) => {
     const user = req.user;

@@ -2,9 +2,11 @@ import prisma from "../db";
 
 
 export const createReport = async (req, res) => {
+    console.log('req.body', req);
     // TODO : data user didapat dari middleware
     const {title, content, reportDate} = req.body;
     const photoUrl = req.file ? req.file.path : null;
+    console.log('photoUrl', photoUrl);
     const userId = req.user.id;
 
     try {
@@ -17,9 +19,14 @@ export const createReport = async (req, res) => {
                 userId: userId
             }
         })
-        res.status(201).json(report);
+        res.status(201).json({
+            message: 'success',
+            responseData: report
+        });
     }catch(e) {
-        res.status(500).json({error: 'Something went wrong '+e});
+        res.status(500).json({
+            message: 'error',
+            responseData: null});
     }
 }
 export const getAllReports = async (req, res) => {
