@@ -4,6 +4,8 @@ import { getStaff, signin, signup } from "./handlers/user";
 import { upload } from "./handlers/upload";
 import { protect } from "./modules/auth";
 import router from "./router";
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 const prisma = new PrismaClient();
 const app = express();
@@ -37,17 +39,33 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 async function main() {
     const getAllUsers = await prisma.user.findMany();
     console.log(getAllUsers);
 }
+app.get('/upload/image/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, 'public', filename);
+
+    console.log(`Looking for file at: ${filepath}`);
+    
+    if (fs.existsSync(filepath)) {
+        res.sendFile(filepath);
+    } else {
+        console.error('File not found:', filepath);
+        res.status(404).send('File not found');
+    }
+});
 
 app.use('/api/v1', protect, router);
 
 app.post('/signin',signin);
 app.post('/signup', signup);
 app.get('/getStaff', getStaff);
+
+
 app.use((err, req, res, next) => {
     console.log(err)
     res.json({message: `had an error: ${err.message}`})

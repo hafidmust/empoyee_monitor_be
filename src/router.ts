@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { upload } from "./handlers/upload";
 import { createReport, getAllReports, getReportById } from "./handlers/report";
-import { getProfile } from "./handlers/user";
+import { getProfile, getStaff } from "./handlers/user";
 import { createTask, getTasks, getTasksAssigned } from "./handlers/task";
+import { getListMenuByRole } from "./handlers/menu";
 
 const router = Router();
 /**
@@ -26,6 +27,9 @@ router.get("/task/assigned",getTasksAssigned);
  * User / pengguna
  */
 router.get("/user",getProfile);
+router.get("/user/staff", getStaff )
+
+router.get("/listMenu", getListMenuByRole)
 
 
 

@@ -56,6 +56,7 @@ export const signin = async (req, res) =>{
             return;
         }
         const token = createJWT(user);
+        console.log('token', token);
         res.json({
             message: 'success',
             responseData: {
@@ -154,17 +155,51 @@ export const getProfile = async (req, res) => {
                 id: user.id
             },
             select:{
+                fullName: true,
                 username: true,
                 role: true,
-                createdAt: true
-
+                createdAt: true,
+                position: true,
             }
         });
-        res.json(profile);
+        res.json({
+            message: 'success',
+            responseData: profile
+        });
     }catch(e) {
         res.status(500).json({error: 'Something went wrong '+e});
     }
 }
+
+/**
+ * @swagger
+ * /api/v1/user/staff:
+ *   get:
+ *     summary: Get all staff
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: number
+ *                   username:
+ *                     type: string
+ *                   role:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *       500:
+ *         description: Internal Server Error
+ */
 
 export const getStaff = async (req, res) => {
     try {
@@ -174,12 +209,17 @@ export const getStaff = async (req, res) => {
             },
             select: {
                 id: true,
+                fullName: true,
                 username: true,
                 role: true,
                 createdAt: true
             }
         });
-        res.json(staff);
+        console.log(staff);
+        res.json({
+            message: 'success',
+            responseData: staff
+        });
     }catch(e) {
         res.status(500).json({error: 'Something went wrong '+e});
     }

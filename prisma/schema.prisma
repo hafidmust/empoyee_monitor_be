@@ -13,9 +13,12 @@ datasource db {
 }
 model User {
   id            Int       @id @default(autoincrement())
+  fullName      String?
   username      String    @unique
   password      String
   role          Role
+  position      String?
+  nip           String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   reports       Report[]
@@ -61,6 +64,17 @@ model Task {
   dueDate       DateTime
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Menu {
+  id          Int       @id @default(autoincrement())
+  text        String
+  route       String
+  icon        String
+  color       String
+  allowedRoles Role[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 enum Role {

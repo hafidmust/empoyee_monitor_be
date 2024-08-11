@@ -1,4 +1,6 @@
 import prisma from "../db"
+
+
 export const createTask = async (req, res) => {
     try{
         const assignedById = req.user.id;
@@ -9,9 +11,30 @@ export const createTask = async (req, res) => {
                 dueDate: new Date(dueDate),
                 assignedById: assignedById,
                 assignedToId: assignedToId,
+            },
+            select: {
+                id: true,
+                description: true,
+                dueDate: true,
+                assignedBy: {
+                    select: {
+                        username: true,
+                        fullName: true
+                    }
+                },
+                assignedTo: {
+                    select: {
+                        username: true,
+                        fullName: true
+                    }
+                }
             }
         });
-        res.status(201).json(task);
+        console.log('task', task);
+        res.status(201).json({
+            message: 'success',
+            responseData: task
+        });
     }catch(e) {
         res.status(500).json({error: 'Something went wrong '+e});
     }
@@ -49,6 +72,8 @@ export const getTasks = async (req, res) => {
 /**
  * get list task by user
  */
+
+
 
 export const getTasksAssigned = async (req, res) => {
     try{
