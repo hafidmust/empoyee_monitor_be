@@ -39,7 +39,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname,'..', 'uploads')));
 
 async function main() {
     const getAllUsers = await prisma.user.findMany();
@@ -47,7 +47,7 @@ async function main() {
 }
 app.get('/upload/image/:filename', (req, res) => {
     const filename = req.params.filename;
-    const filepath = path.join(__dirname, 'public', filename);
+    const filepath = path.join(__dirname, '..','uploads', filename);
 
     console.log(`Looking for file at: ${filepath}`);
     

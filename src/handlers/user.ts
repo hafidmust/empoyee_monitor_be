@@ -1,6 +1,7 @@
 import exp from "constants";
 import prisma from "../db"
 import { createJWT } from "../modules/auth";
+import bcrypt from "bcrypt";
 
 /**
  * @swagger
@@ -41,30 +42,48 @@ import { createJWT } from "../modules/auth";
  *         description: Unauthorized
  */
 
-export const signin = async (req, res) =>{
+export const signin = async (req, res) => {
     const { username, password } = req.body;
 
-    try{
+    try {
         const user = await prisma.user.findUnique({
             where: {
                 username: username,
-                password: password
+            },
+            select: {
+                id: true,
+                fullName: true,
+                nip: true,
+                position: true,
+                username: true,
+                password: true,
+                role: true,
             }
         });
-        if(!user) {
-            res.status(401).json({message: 'Invalid username or password',responseData: null});
+
+        if (!user) {
+            res.status(401).json({ message: 'Invalid username or password', responseData: null });
             return;
         }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+            res.status(401).json({ message: 'Invalid username or password', responseData: null });
+            return;
+        }
+
         const token = createJWT(user);
         console.log('token', token);
         res.json({
             message: 'success',
             responseData: {
-                token: token
+                token: token,
+                user: user
             }
         });
-    }catch(e) {
-        res.status(500).json({error: 'Something went wrong '+e});
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
 }
 
@@ -106,16 +125,23 @@ export const signin = async (req, res) =>{
  */
 
 export const signup = async (req, res) => {
-    const { username, password } = req.body;
+    const {fullName,nip,jabatan, username, password } = req.body;
+    const encryptedPassword = await bcrypt.hash(password, 10);
     try {
         const user = await prisma.user.create({
             data: {
+                fullName: fullName,
+                nip: nip,
+                position: jabatan,
                 username: username,
-                password: password,
+                password: encryptedPassword,
                 role: 'STAFF'
             }
         });
-        res.status(201).json(user);
+        res.status(201).json({
+            message: 'success',
+            responseData: user
+        });
     }catch(e) {
         res.status(500).json({error: 'Something went wrong '+e});
     }

@@ -85,6 +85,13 @@ const main = async () => {
               color: "red",
               route: "/list_validation",
               allowedRoles: ["SUPERVISOR"]
+            },
+            {
+              icon: "person_add",
+              text: "Add User",
+              color: "red",
+              route: "/register",
+              allowedRoles: ["SUPERVISOR"]
             }
           ]
         })
