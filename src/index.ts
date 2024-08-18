@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import express from 'express';
 import { getStaff, signin, signup } from "./handlers/user";
 import { upload } from "./handlers/upload";
@@ -7,7 +6,6 @@ import router from "./router";
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
-const prisma = new PrismaClient();
 const app = express();
 const port = process.env.EXPRESS_PORT || 8080;
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -41,10 +39,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use('/uploads', express.static(path.join(__dirname,'..', 'uploads')));
 
-async function main() {
-    const getAllUsers = await prisma.user.findMany();
-    console.log(getAllUsers);
-}
 app.get('/upload/image/:filename', (req, res) => {
     const filename = req.params.filename;
     const filepath = path.join(__dirname, '..','uploads', filename);
