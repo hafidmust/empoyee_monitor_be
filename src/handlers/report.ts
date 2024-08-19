@@ -1,22 +1,34 @@
 import { report } from "process";
 import prisma from "../db";
-import { ReportStatus } from "@prisma/client";
+import { ReportStatus, Role } from "@prisma/client";
 
 
 export const createReport = async (req, res) => {
     console.log('req.body', req);
     // TODO : data user didapat dari middleware
-    const {title, content, reportDate} = req.body;
+    const { title, content, reportDate } = req.body;
     const photoUrl = req.file ? req.file.path : null;
     console.log('photoUrl', photoUrl);
     const userId = req.user.id;
 
     try {
+        const date = new Date(reportDate);
+
+        // Add one day
+        date.setDate(date.getDate() + 1);
+
+        // Convert the date to locale ID string format
+        const formattedDate = date.toLocaleDateString('id-ID');
+
+        // Parse the formatted date string back to a Date object
+        const [day, month, year] = formattedDate.split('/');
+        const localeDate = new Date(`${year}-${month}-${day}`);
+
         const report = await prisma.report.create({
             data: {
                 title: title,
                 content: content,
-                reportDate: new Date(reportDate),
+                reportDate: localeDate,
                 photoUrl: photoUrl,
                 userId: userId
             }
@@ -25,16 +37,17 @@ export const createReport = async (req, res) => {
             message: 'success',
             responseData: report
         });
-    }catch(e) {
+    } catch (e) {
         res.status(500).json({
             message: 'error',
-            responseData: null});
+            responseData: null
+        });
     }
 }
 export const getAllReports = async (req, res) => {
     try {
         const reports = await prisma.report.findMany({
-            
+
             select: {
                 id: true,
                 title: true,
@@ -52,12 +65,12 @@ export const getAllReports = async (req, res) => {
             message: 'success',
             responseData: reports
         });
-    }catch(e){
-        res.status(500).json({error: 'Something went wrong '+e});
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
 }
 export const getAllReportsMe = async (req, res) => {
-    try{
+    try {
         const reports = await prisma.report.findMany({
             where: {
                 userId: req.user.id
@@ -67,13 +80,13 @@ export const getAllReportsMe = async (req, res) => {
             message: 'success',
             responseData: reports
         })
-    }catch(e){
-        res.status(500).json({error: 'Something went wrong '+e});
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
 }
 export const getReportById = async (req, res) => {
-    const {id} = req.params;
-    try{
+    const { id } = req.params;
+    try {
         const report = await prisma.report.findUnique({
             where: {
                 id: parseInt(id)
@@ -91,77 +104,78 @@ export const getReportById = async (req, res) => {
             message: 'success',
             responseData: report
         });
-    }catch(e){
-        res.status(500).json({error: 'Something went wrong '+e});
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
 
-    
+
 }
 export const updateReportAcc = async (req, res) => {
-    try{
-        const { id } = req.params;
-    const { status } = req.body;
-
     try {
-        const updatedReport = await prisma.report.update({
-            where: { id: parseInt(id) },
-            data: { status: ReportStatus.ACCEPTED }
-        });
+        const { id } = req.params;
+        const { status } = req.body;
 
-        res.json({
-            message: 'success',
-            responseData: updatedReport
-        });
-    } catch (error) {
-        console.error('Error updating status:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        try {
+            const updatedReport = await prisma.report.update({
+                where: { id: parseInt(id) },
+                data: { status: ReportStatus.ACCEPTED }
+            });
+
+            res.json({
+                message: 'success',
+                responseData: updatedReport
+            });
+        } catch (error) {
+            console.error('Error updating status:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
-    }catch(e){
-        res.status(500).json({error: 'Something went wrong '+e});
-    }
-    
+
 }
 export const updateReportReject = async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
 
-    try {
-        const updatedReport = await prisma.report.update({
-            where: { id: parseInt(id) },
-            data: { status: ReportStatus.REJECTED }
-        });
+        try {
+            const updatedReport = await prisma.report.update({
+                where: { id: parseInt(id) },
+                data: { status: ReportStatus.REJECTED }
+            });
 
-        res.json({
-            message: 'success',
-            responseData: updatedReport
-        });
-    } catch (error) {
-        console.error('Error updating status:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+            res.json({
+                message: 'success',
+                responseData: updatedReport
+            });
+        } catch (error) {
+            console.error('Error updating status:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Something went wrong ' + e });
     }
-    }catch(e){
-        res.status(500).json({error: 'Something went wrong '+e});
-    }
-    
+
 }
 
 export const dashboardReport = async (req, res) => {
-        try {
-            // const reports = await prisma.report.findMany(
-            //     {
-            //         where: {
-            //             id: req.user.id
-            //         }
-            //     }
-            // );
-            // const statusTotals = reports.reduce((acc, report) => {
-            //     if (!acc[report.status]) {
-            //         acc[report.status] = 0;
-            //     }
-            //     acc[report.status]++;
-            //     return acc;
-            // }, {});
+    try {
+        // const reports = await prisma.report.findMany(
+        //     {
+        //         where: {
+        //             id: req.user.id
+        //         }
+        //     }
+        // );
+        // const statusTotals = reports.reduce((acc, report) => {
+        //     if (!acc[report.status]) {
+        //         acc[report.status] = 0;
+        //     }
+        //     acc[report.status]++;
+        //     return acc;
+        // }, {});
 
+        if (req.user.role === Role.STAFF) {
             const pendingCount = await prisma.report.count({
                 where: {
                     status: ReportStatus.PENDING,
@@ -191,25 +205,65 @@ export const dashboardReport = async (req, res) => {
                     "REJECTED": rejectedCount
                 }
             });
-        } catch (error) {
-            console.error('Error fetching status totals:', error);
-            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            const pendingCount = await prisma.report.count({
+                where: {
+                    status: ReportStatus.PENDING
+                }
+            });
+
+            const acceptedCount = await prisma.report.count({
+                where: {
+                    status: ReportStatus.ACCEPTED
+                }
+            });
+
+            const rejectedCount = await prisma.report.count({
+                where: {
+                    status: ReportStatus.REJECTED
+                }
+            });
+            // console.log(reports);
+            res.json({
+                message: 'success',
+                responseData: {
+                    "ACCEPTED": acceptedCount,
+                    "PENDING": pendingCount,
+                    "REJECTED": rejectedCount
+                }
+            });
         }
+    } catch (error) {
+        console.error('Error fetching status totals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 }
 
 export const detailListByStatus = async (req, res) => {
     try {
         const { status } = req.params;
-        const reports = await prisma.report.findMany({
-            where: {
-                status: status.toUpperCase() as ReportStatus,
-                userId: req.user.id
-            }
-        });
-        res.json({
-            message: 'success',
-            responseData: reports
-        });
+        if (req.user.role === Role.STAFF) {
+            const reports = await prisma.report.findMany({
+                where: {
+                    status: status.toUpperCase() as ReportStatus,
+                    userId: req.user.id
+                }
+            });
+            res.json({
+                message: 'success',
+                responseData: reports
+            });
+        } else {
+            const reports = await prisma.report.findMany({
+                where: {
+                    status: status.toUpperCase() as ReportStatus
+                }
+            });
+            res.json({
+                message: 'success',
+                responseData: reports
+            });
+        }
     } catch (error) {
         console.error('Error fetching status totals:', error);
         res.status(500).json({ message: 'Internal Server Error' });
