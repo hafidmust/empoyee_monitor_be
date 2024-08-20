@@ -1,14 +1,25 @@
+import { report } from "process";
 import prisma from "../db"
 
 
 export const createTask = async (req, res) => {
     try{
+        const date = new Date(req.body.dueDate);
+        date.setDate(date.getDate() + 1);
+
+        // Convert the date to locale ID string format
+        const formattedDate = date.toLocaleDateString('id-ID');
+
+        // Parse the formatted date string back to a Date object
+        const [day, month, year] = formattedDate.split('/');
+        const localeDate = new Date(`${year}-${month}-${day}`);
+
         const assignedById = req.user.id;
-        const {description, dueDate, assignedToId} = req.body;
+        const {description, assignedToId} = req.body;
         const task = await prisma.task.create({
             data: {
                 description: description,
-                dueDate: new Date(dueDate),
+                dueDate: new Date(localeDate),
                 assignedById: assignedById,
                 assignedToId: assignedToId,
             },
